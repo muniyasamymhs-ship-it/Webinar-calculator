@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Webinar Report Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0d0f;
+    --surface: #16161a;
+    --surface2: #1e1e24;
+    --border: #2a2a35;
+    --accent: #00e5a0;
+    --accent2: #7b5ea7;
+    --text: #f0f0f5;
+    --muted: #7a7a90;
+    --danger: #ff4d6d;
+    --warn: #ffb830;
+    --radius: 12px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* NAV */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-logo {
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .nav-logo span {
+    background: var(--accent);
+    color: #000;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  .nav-right {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 4rem 2rem 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.75rem;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+  .hero p {
+    color: var(--muted);
+    font-size: 1rem;
+    max-width: 480px;
+    line-height: 1.6;
+  }
+
+  /* MAIN LAYOUT */
+  .main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem 4rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 680px) {
+    .main { grid-template-columns: 1fr; padding: 1rem; }
+    .hero { padding: 2rem 1rem 1rem; }
+    nav { padding: 1rem; }
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+  }
+  .card-full { grid-column: 1 / -1; }
+
+  .section-label {
+    font-size: 0.7rem;
+    font-family: 'Space Mono', monospace;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* FORM */
+  .field { margin-bottom: 1rem; }
+  .field:last-child { margin-bottom: 0; }
+  label {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-family: 'Space Mono', monospace;
+  }
+  input[type="text"],
+  input[type="date"],
+  input[type="number"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.9rem;
+    padding: 0.65rem 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input:focus {
+    border-color: var(--accent);
+  }
+  input::placeholder { color: #444455; }
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.4);
+  }
+
+  /* BUTTONS */
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+  }
+  button {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.7rem 1.4rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+  }
+  .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn-primary:active { transform: scale(0.97); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--muted); color: var(--text); }
+  .btn-wa {
+    background: #25d366;
+    color: #fff;
+  }
+  .btn-wa:hover { opacity: 0.88; transform: translateY(-1px); }
+
+  /* OUTPUT */
+  #output { display: none; animation: fadeUp 0.4s ease; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 1.5rem;
+  }
+  .stat-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    transition: border-color 0.2s;
+  }
+  .stat-box:hover { border-color: var(--accent2); }
+  .stat-box.green {
+    border-color: #1a3d2e;
+    background: #0d2018;
+  }
+  .stat-box.green .stat-val { color: var(--accent); }
+  .stat-box.green .stat-lbl { color: #3a9e72; }
+  .stat-lbl {
+    font-size: 0.7rem;
+    font-family: 'Space Mono', monospace;
+    color: var(--muted);
+    margin-bottom: 6px;
+    line-height: 1.4;
+  }
+  .stat-val {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .stat-sub {
+    font-size: 0.68rem;
+    font-family: 'Space Mono', monospace;
+    color: #555568;
+    margin-top: 4px;
+  }
+
+  /* REPORT HEADER */
+  .report-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .report-title { font-size: 1.3rem; font-weight: 800; }
+  .report-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    font-size: 0.72rem;
+    font-family: 'Space Mono', monospace;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .badge.accent { background: #0d2018; border-color: #1a3d2e; color: var(--accent); }
+
+  /* WA PREVIEW */
+  .wa-box {
+    background: #0a1a10;
+    border: 1px solid #1a3d2e;
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 1.9;
+    color: #a8d8b8;
+    white-space: pre-wrap;
+    margin-bottom: 1rem;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  .copy-feedback {
+    font-size: 0.8rem;
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    display: none;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  /* DIVIDER */
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-family: 'Space Mono', monospace;
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    WebinarStats <span>CALC</span>
+  </div>
+  <div class="nav-right">v1.0</div>
+</nav>
+
+<div class="hero">
+  <h1>Webinar Report<br><em>Calculator</em></h1>
+  <p>Enter your raw webinar numbers — get all conversion rates instantly, plus a ready-to-paste WhatsApp report.</p>
+</div>
+
+<div class="main">
+
+  <!-- LEFT: Info -->
+  <div class="card">
+    <div class="section-label">Webinar Info</div>
+    <div class="field">
+      <label>Webinar Title</label>
+      <input type="text" id="title" placeholder="e.g. Today Webinar" />
+    </div>
+    <div class="field">
+      <label>Date</label>
+      <input type="date" id="date" />
+    </div>
+    <div class="field">
+      <label>Batch</label>
+      <input type="text" id="batch" placeholder="e.g. AS228" />
+    </div>
+  </div>
+
+  <!-- RIGHT: Numbers -->
+  <div class="card">
+    <div class="section-label">Raw Numbers</div>
+    <div class="field">
+      <label>Total Leads</label>
+      <input type="number" id="leads" placeholder="e.g. 1937" min="0" />
+    </div>
+    <div class="field">
+      <label>Unique Visitor Count</label>
+      <input type="number" id="unique" placeholder="e.g. 319" min="0" />
+    </div>
+    <div class="field">
+      <label>Peak Count</label>
+      <input type="number" id="peak" placeholder="e.g. 231" min="0" />
+    </div>
+    <div class="field">
+      <label>Online Conversions</label>
+      <input type="number" id="conv" placeholder="e.g. 22" min="0" />
+    </div>
+    <div class="field">
+      <label>Price Reveal Count</label>
+      <input type="number" id="pricerev" placeholder="e.g. 140" min="0" />
+    </div>
+  </div>
+
+  <!-- BUTTONS -->
+  <div class="card-full" style="display:flex; gap:10px; flex-wrap:wrap; padding: 0; background:none; border:none;">
+    <button class="btn-primary" onclick="calculate()">
+      ⚡ Calculate Report
+    </button>
+    <button class="btn-ghost" onclick="resetAll()">
+      ↺ Reset
+    </button>
+  </div>
+
+  <!-- OUTPUT -->
+  <div class="card card-full" id="output">
+    <div class="report-header">
+      <div>
+        <div class="report-title" id="out-title">Report</div>
+      </div>
+      <div class="report-meta">
+        <span class="badge accent" id="out-batch"></span>
+        <span class="badge" id="out-date"></span>
+      </div>
+    </div>
+
+    <div class="section-label">Stats Overview</div>
+    <div class="stats-grid" id="stats-grid"></div>
+
+    <hr/>
+
+    <div class="section-label">WhatsApp Report</div>
+    <div class="wa-box" id="wa-box"></div>
+    <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+      <button class="btn-wa" onclick="copyWA()">
+        📲 Copy for WhatsApp
+      </button>
+      <span class="copy-feedback" id="copy-ok">✓ Copied! Paste into WhatsApp.</span>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Built with HTML · CSS · JS &nbsp;|&nbsp; No data stored &nbsp;|&nbsp; All calculations done in your browser
+</footer>
+
+<script>
+  function pct(num, den) {
+    if (!den || den === 0) return '—';
+    return (num / den * 100).toFixed(2) + '%';
+  }
+  function fmt(n) {
+    return n ? Number(n).toLocaleString() : '0';
+  }
+
+  let waText = '';
+
+  function calculate() {
+    const leads   = parseFloat(document.getElementById('leads').value)   || 0;
+    const unique  = parseFloat(document.getElementById('unique').value)  || 0;
+    const peak    = parseFloat(document.getElementById('peak').value)    || 0;
+    const conv    = parseFloat(document.getElementById('conv').value)    || 0;
+    const pricerev= parseFloat(document.getElementById('pricerev').value)|| 0;
+    const title   = document.getElementById('title').value   || 'Webinar Report';
+    const batch   = document.getElementById('batch').value   || '';
+    const dateVal = document.getElementById('date').value;
+
+    if (!leads && !unique && !peak && !conv) {
+      alert('Please enter at least some numbers first!');
+      return;
+    }
+
+    const dateStr = dateVal
+      ? new Date(dateVal).toLocaleDateString('en-GB', { day:'2-digit', month:'2-digit', year:'numeric' })
+      : '—';
+
+    const peakPct       = pct(peak, leads);
+    const peakConvPct   = pct(conv, peak);
+    const leadConvPct   = pct(conv, leads);
+    const priceConvPct  = pricerev ? pct(conv, pricerev) : '—';
+    const uniqueConvPct = pct(conv, unique);
+    const leadsUniqPct  = pct(unique, leads);
+
+    document.getElementById('out-title').textContent = title;
+    document.getElementById('out-batch').textContent = batch || 'No batch';
+    document.getElementById('out-date').textContent  = dateStr;
+
+    const stats = [
+      { lbl: 'Total Leads',           val: fmt(leads),    sub: '',                       green: false },
+      { lbl: 'Unique Visitors',        val: fmt(unique),   sub: leadsUniqPct+' of leads', green: false },
+      { lbl: 'Peak Count',             val: fmt(peak),     sub: peakPct+' of leads',      green: false },
+      { lbl: 'Online Conv',            val: fmt(conv),     sub: '',                       green: false },
+      { lbl: 'Lead to Conv %',         val: leadConvPct,   sub: conv+' / '+fmt(leads),    green: true  },
+      { lbl: 'Unique to Conv %',       val: uniqueConvPct, sub: conv+' / '+fmt(unique),   green: true  },
+      { lbl: 'Peak to Conv %',         val: peakConvPct,   sub: conv+' / '+fmt(peak),     green: true  },
+      { lbl: 'Price Reveal to Conv %', val: priceConvPct + (pricerev ? ' ('+fmt(pricerev)+')' : ''), sub: conv+' / '+fmt(pricerev), green: true },
+      { lbl: 'Leads to Unique %',      val: leadsUniqPct,  sub: fmt(unique)+' / '+fmt(leads), green: false },
+    ];
+
+    document.getElementById('stats-grid').innerHTML = stats.map(s => `
+      <div class="stat-box${s.green ? ' green' : ''}">
+        <div class="stat-lbl">${s.lbl}</div>
+        <div class="stat-val">${s.val}</div>
+        ${s.sub ? `<div class="stat-sub">${s.sub}</div>` : ''}
+      </div>
+    `).join('');
+
+    waText =
+`*${title}*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📅 *Date*                     : ${dateStr}
+🏷️ *Batch*                    : ${batch || '—'}
+👥 *Total Leads*              : ${fmt(leads)}
+👁️ *Unique Visitor Count*     : ${fmt(unique)}
+📈 *Peak Count*               : ${fmt(peak)}
+📊 *Peak %*                   : ${peakPct}
+✅ *Online Conv*              : ${fmt(conv)}
+🔁 *Peak to Conv %*           : ${peakConvPct}
+💰 *Lead to Conv %*           : ${leadConvPct}
+🏷️ *Price Reveal to Conv %*   : ${priceConvPct}${pricerev ? ' ('+fmt(pricerev)+')' : ''}
+🎯 *Unique to Conv %*         : ${uniqueConvPct}
+📋 *Leads to Unique %*        : ${leadsUniqPct}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+
+    document.getElementById('wa-box').textContent = waText;
+    const out = document.getElementById('output');
+    out.style.display = 'block';
+    setTimeout(() => out.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  }
+
+  function copyWA() {
+    navigator.clipboard.writeText(waText).then(() => {
+      const el = document.getElementById('copy-ok');
+      el.style.display = 'flex';
+      setTimeout(() => { el.style.display = 'none'; }, 3500);
+    }).catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = waText;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      const el = document.getElementById('copy-ok');
+      el.style.display = 'flex';
+      setTimeout(() => { el.style.display = 'none'; }, 3500);
+    });
+  }
+
+  function resetAll() {
+    ['title','date','batch','leads','unique','peak','conv','pricerev'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('output').style.display = 'none';
+    waText = '';
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') calculate();
+  });
+</script>
+
+</body>
+</html>
